@@ -1,0 +1,2554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de testes de SW STB Claro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@200;300;400;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+       --claro-primary: #E2001A; /* Vermelho Claro */
+        --claro-secondary: #000000; /* Preto */
+        --claro-accent: #FFFFFF; /* Branco */
+        --claro-light-gray: #F5F5F5;
+        --claro-dark-gray: #333333;
+        --claro-blue: #005AAB;
+        --claro-green: #00A859;
+        --claro-orange: #FF6D00;
+        --dark-gray: var(--claro-dark-gray);
+        --red-accent: var(--claro-primary);
+        --white: var(--claro-accent);
+        --light-gray-bg: #f2eeed; /* #f0f0f0;  Cinza bem clarinho */
+        --panel-bg: var(--claro-accent);
+        --text-color: var(--claro-dark-gray);
+        --border-color: #e0e0e0;
+        --success-color: var(--claro-green);
+        --error-color: var(--claro-primary);
+        --warning-color: var(--claro-orange);
+        --info-color: var(--claro-blue);
+        --selected-gray: #f0f0f;
+        --sidebar-dark-gray: #363636; /* Cinza escuro para a sidebar */
+        --sidebar-item-hover: #1a1a1a;
+        --sidebar-active-border: var(--claro-primary);
+        --tab-inactive-bg: #f5f5f5;
+        --tab-active-bg: var(--claro-accent);
+        }
+
+        /* Estilos gerais */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light-gray-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex; /* Alterado para flex */
+            min-height: 100vh;
+            overflow-x: hidden; /* Alterado para hidden */
+            font-size: 0.9em;
+        }
+        
+                h1, h2 {
+            color: #0056b3;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 98%;
+            height: 500px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre; /* Preserva espaços em branco e quebras de linha */
+            overflow-x: auto; /* Adiciona scroll horizontal se a linha for muito longa */
+        }
+        input[type="file"] {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #e9e9e9;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .filter-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .filter-section label {
+            margin-right: 10px;
+        }
+        .filter-section input[type="text"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-dark-gray);
+            color: var(--white);
+            position: sticky; /* Alterado para sticky */
+            top: 0; /* Adicionado para sticky */
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
+
+        .sidebar h2 {
+            color: var(--white);
+            border-bottom: 2px solid var(--red-accent);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Scripts salvos (na nova localização) */
+        .sidebar-script-item { /* Renomeado para .script-item-common para reutilização */
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #f0f0f0  ;/*var(--white);  Fundo branco quando não selecionado */
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text-color); /* Texto escuro quando não selecionado */
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-script-item:hover {
+            background-color: #f0f0f0; /*var(--selected-gray); */
+        }
+
+        .sidebar-script-item.active {
+            background-color: var(--red-accent); /* Vermelho quando selecionado */
+            color: var(--white); /* Texto branco quando selecionado */
+        }
+
+        /* Tabs (abas) */
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--red-accent); /* Vermelho */
+
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            color: var(--white); /* Texto branco */
+            font-weight: bold;
+            
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--white); /* Borda branca para a aba ativa */
+            background-color: #c00016; /* Vermelho mais escuro para aba ativa */
+        }
+
+        .tab-content {
+            display: none;
+            padding: 15px 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Painel principal */
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            flex: 1 1 calc(33% - 10px); /* Ajustado para 3 colunas */
+            min-width: 280px;
+            box-sizing: border-box;
+        }
+        
+        .panel h1 {
+            color: var(--red-accent); /* Vermelho */
+            margin-bottom: 10px;
+        }
+
+        /* Estilos para a visualização de JSON */
+        .json-viewer-panel {
+            margin-top: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            background-color: var(--panel-bg);
+        }
+
+        .json-viewer-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--claro-dark);
+            font-size: 1em;
+        }
+
+        .json-viewer-textarea {
+            width: calc(100% - 18px);
+            min-height: 80px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+            resize: vertical;
+            background-color: var(--light-gray);
+        }
+
+        .json-results-display {
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            background-color: var(--light-gray);
+            min-height: 80px;
+            max-height: 200px;
+            overflow-y: auto;
+            color: var(--claro-dark);
+            font-size: 0.85em;
+        }
+
+        .json-result-item {
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .json-result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .json-result-key {
+            font-weight: bold;
+            color: var(--claro-primary);
+            margin-right: 5px;
+            flex-shrink: 0;
+        }
+
+        .json-result-value {
+            color: var(--claro-dark);
+            word-break: break-all;
+        }
+
+        .json-viewer-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sidebar h2 {
+            color: var(--white);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 8px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 0; /* Removido margin-left fixo para se adaptar ao flex */
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: block;
+            flex-direction: column; /* Alterado para coluna para as abas */
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .main-content-columns {
+            display: flex;
+            width: 100%;
+            gap: 15px;
+            flex-wrap: wrap; /* Permite que as colunas quebrem em telas menores */
+        }
+
+        .main-content-left, .main-content-middle, .main-content-right { /* Adicionado main-content-middle */
+            flex: 1 1 calc(33% - 10px); /* Ajustado para 3 colunas */
+            min-width: 280px; /* Mantido min-width para evitar colunas muito estreitas */
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--claro-dark);
+        }
+
+        h2 {
+            color: var(--claro-dark);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: var(--claro-dark);
+            font-size: 1.1em;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            background-color: #FFFDE7;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            flex-basis: 100%;
+        }
+
+        .success {
+            background-color: #E8F5E9;
+            color: var(--success-color);
+        }
+
+        .error {
+            background-color: #FFEBEE;
+            color: var(--error-color);
+        }
+
+        .warning {
+            background-color: #FFFDE7;
+            color: var(--warning-color);
+        }
+
+        /* Estilos dos scripts na sidebar (ou em nova div) */
+        .script-item-common { /* Novo estilo base para itens de script */
+            background-color: rgba(255,255,255,0.08); /* Este será sobrescrito se estiver no painel branco */
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            font-size: 0.9em;
+        }
+
+        .script-item-common:hover {
+            background-color: rgba(255,255,255,0.08); /* Pode ser ajustado para o painel branco */
+            transform: translateY(-1px);
+        }
+
+        .script-item-common.active {
+            background-color: var(--selected-gray);
+            color: var(--claro-dark);
+            border-left: 4px solid var(--sidebar-active-border);
+            padding-left: 8px;
+        }
+
+        .script-item-common.active .script-name {
+            color: var(--claro-dark);
+        }
+
+        .script-item-common .script-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: var(--white); /* Pode ser ajustado para o painel branco */
+            font-size: 0.95em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .script-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .script-item-common .script-actions button {
+            padding: 4px 7px;
+            font-size: 0.75em;
+            border-radius: 3px;
+        }
+
+        .script-item-common .script-actions .loop-count {
+            width: 35px;
+            padding: 3px;
+            font-size: 0.75em;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-execute {
+            background-color: var(--claro-secondary);
+            color: var(--white);
+        }
+
+        .btn-execute:hover {
+            background-color: #0080b3;
+        }
+
+        .btn-execute.active {
+            background-color: var(--light-gray);
+        }
+
+        .btn-edit {
+            background-color: var(--claro-secondary);
+            color: var(--white);
+        }
+
+        .btn-edit:hover {
+            background-color: #0080b3;
+        }
+
+        .btn-loop {
+            background-color: var(--claro-accent); /* Era claro-orange, ajustei para branco */
+            color: var(--claro-dark);
+        }
+
+        .btn-loop:hover {
+            background-color: #e0e0e0; /* Hover para o branco */
+        }
+
+        .btn-combine {
+            background-color: var(--claro-primary);
+            color: var(--white);
+        }
+
+        .btn-combine:hover {
+            background-color: #e66400;
+        }
+
+        .btn-danger {
+            background-color: var(--claro-secondary);
+            color: var(--white); */
+        }
+
+        .btn-danger:hover {
+            background-color: #D32F2F;
+        }
+
+        .btn-stop {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Input fields and select */
+        input[type="text"],
+        input[type="number"],
+        select {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 0.9em;
+            box-sizing: border-box;
+        }
+
+        /* Specific input adjustments */
+        .loop-count, .delay-input {
+            width: 70px;
+            padding: 7px;
+            font-size: 0.85em;
+        }
+
+        /* Estilos do painel de execução */
+        .execution-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .command-display {
+            margin-top: 10px; /* Reduzido o margin-top */
+            padding: 15px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            min-height: 120px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            color: var(--claro-dark);
+        }
+
+        .command-display p {
+            margin: 5px 0;
+            color: var(--claro-dark);
+        }
+
+        .command-display strong {
+            color: var(--claro-primary);
+        }
+
+        /* Estilos do painel de combinação */
+        .script-checkboxes {
+            margin-top: 10px;
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            background-color: var(--light-gray);
+            font-size: 0.9em;
+        }
+
+        .script-checkbox-item {
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .script-checkbox-item input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1);
+            accent-color: var(--claro-primary);
+        }
+
+        .script-checkbox-item label {
+            color: var(--text-color);
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        .combination-controls {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .combination-controls input[type="text"] {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 0.9em;
+            width: calc(100% - 18px);
+            background-color: var(--light-gray);
+        }
+
+        /* Estilos para o Fluxograma de Processos */
+        .flowchart-display {
+            margin-top: 15px;
+            border: 1px dashed var(--claro-primary);
+            padding: 10px;
+            border-radius: 6px;
+            min-height: 80px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            background-color: #fffafa;
+            font-size: 0.85em;
+        }
+
+        .flowchart-node {
+            background-color: var(--claro-dark);
+            color: var(--white);
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .flowchart-node-result {
+            background-color: var(--claro-primary);
+            color: var(--white);
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .flowchart-arrow {
+            font-size: 1.2em;
+            color: var(--claro-primary);
+            font-weight: bold;
+            margin: 0 4px;
+        }
+
+        .flowchart-node::after {
+            content: '→';
+            position: absolute;
+            right: -15px;
+            color: var(--claro-primary);
+            font-size: 1em;
+            font-weight: bold;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .flowchart-display .flowchart-node:last-of-type::after {
+            content: '';
+        }
+
+        /* Textarea para JSON (Import/Export) */
+        .json-textarea {
+            width: calc(100% - 18px);
+            min-height: 120px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+            resize: vertical;
+            background-color: var(--light-gray);
+        }
+
+        .import-export-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* Form groups */
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            font-size: 0.9em;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .command-list {
+            margin-top: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            background-color: var(--light-gray);
+            min-height: 80px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.85em;
+        }
+
+        .command-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            font-size: 0.85em;
+            cursor: move; /* Indica que o item pode ser arrastado */
+        }
+
+        .command-item.dragging {
+            opacity: 0.5;
+            background-color: var(--claro-secondary);
+            color: white;
+        }
+
+        .command-item .command-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .command-item .command-name {
+            font-weight: bold;
+            color: var(--claro-dark);
+        }
+
+        .command-item .command-props {
+            color: #666;
+            font-size: 0.75em;
+        }
+
+        .command-item button {
+            padding: 4px 8px;
+            font-size: 0.75em;
+        }
+
+        /* Command buttons in display */
+        .command-buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .command-button {
+            padding: 8px 12px;
+            background-color: var(--claro-secondary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+
+        .command-button:hover {
+            background-color: #0080b3;
+        }
+
+        /* Drop zone for drag and drop */
+        .drop-zone {
+            border: 2px dashed var(--claro-secondary);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 15px;
+            background-color: rgba(0, 153, 204, 0.1);
+            transition: all 0.3s;
+        }
+
+        .drop-zone.active {
+            background-color: rgba(0, 153, 204, 0.2);
+            border-color: var(--success-color);
+        }
+
+        .drop-zone p {
+            margin: 0;
+            color: var(--claro-secondary);
+        }
+
+        /* Command execution section */
+        .command-execution-section {
+            margin-top: 20px;
+            /* border-top: 1px solid var(--border-color); */ /* Removido para o novo layout */
+            padding-top: 0; /* Removido para o novo layout */
+        }
+
+        .command-execution-log {
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85em;
+        }
+
+        .command-execution-log div {
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .command-execution-log div:last-child {
+            border-bottom: none;
+        }
+
+        /* Logs de execução */
+        .execution-logs {
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            background-color: var(--light-gray);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .execution-log-item {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .execution-log-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .execution-log-timestamp {
+            color: var(--claro-primary);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .execution-log-command {
+            color: var(--claro-dark);
+        }
+
+        .execution-log-result {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 4px;
+            padding-left: 12px;
+            border-left: 2px solid var(--claro-secondary);
+        }
+
+        /* Barra de progresso */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--claro-primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Gerenciamento de Logs */
+        .log-management {
+            margin-top: 20px;
+        }
+
+        .log-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            background-color: var(--light-gray);
+        }
+
+        .log-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: var(--white);
+            border-radius: 5px;
+            border-left: 4px solid var(--claro-primary);
+        }
+
+        .log-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .log-item-name {
+            font-weight: bold;
+            color: var(--claro-primary);
+        }
+
+        .log-item-date {
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .log-item-content {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85em;
+            white-space: pre-wrap;
+        }
+
+        .log-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Botão de salvar log */
+        .save-log-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            background-color: var(--claro-green);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+
+        .save-log-btn:hover {
+            background-color: #008a5e;
+        }
+
+        /* Visualizador de logs */
+        .log-viewer {
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            background-color: var(--light-gray);
+        }
+
+        .log-viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .log-viewer-title {
+            font-weight: bold;
+            color: var(--claro-primary);
+        }
+
+        .log-viewer-content {
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: var(--white);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85em;
+            white-space: pre-wrap;
+        }
+
+        /* Novo estilo para gráficos de log */
+        .log-chart-container {
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            background-color: var(--white);
+        }
+
+        .log-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .log-chart-title {
+            font-weight: bold;
+            color: var(--claro-primary);
+        }
+
+        .log-chart {
+            width: 100%;
+            height: 300px;
+            background-color: var(--light-gray);
+            display: flex; /* Adicionado para centralizar texto */
+            justify-content: center; /* Adicionado para centralizar texto */
+            align-items: center; /* Adicionado para centralizar texto */
+        }
+
+
+        /* Media Queries para Responsividade */
+        @media (max-width: 1200px) { /* Ajustado o breakpoint para quebrar as 3 colunas */
+            .main-content-columns {
+                flex-direction: column;
+                display: block;
+            }
+            .main-content-left, .main-content-middle, .main-content-right {
+                flex: 1 1 100%;
+            }
+            .sidebar { /* Para sidebar no mobile */
+                width: 100%;
+                height: auto;
+                position: relative;
+                box-shadow: none;
+            }
+            body {
+                flex-direction: column; /* Body em coluna para o sidebar ficar em cima */
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .sidebar, .main-content {
+                padding: 10px;
+            }
+            .panel {
+                padding: 10px;
+            }
+            .script-actions, .execution-controls, .import-export-actions, .json-viewer-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            button, .loop-count, .delay-input, .combination-controls input[type="text"],
+            input[type="text"], input[type="number"], select {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            .flowchart-display {
+                flex-direction: column;
+                align-items: center;
+            }
+            .flowchart-node::after {
+                content: '↓';
+                top: auto;
+                bottom: -20px;
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto;
+            }
+            .flowchart-display .flowchart-node:last-of-type::after {
+                content: '';
+            }
+            .script-item-common { /* Ajuste para o novo nome da classe */
+                padding: 6px 8px;
+            }
+            .script-item-common .script-actions button {
+                padding: 3px 5px;
+                font-size: 0.7em;
+            }
+            .script-item-common .script-actions .loop-count {
+                width: 30px;
+            }
+            .json-viewer-textarea, .json-textarea {
+                min-height: 60px;
+            }
+            .json-results-display,.script-checkboxes, .command-list {
+                min-height: 60px;
+                max-height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+        <div class="container">
+        <h1>Visualizador de Logs TCPDUMP</h1>
+        <p>Selecione um arquivo de log de texto (ex: `trafego_equipamento.txt`, `analise.txt`) gerado pelo tcpdump para visualizá-lo.</p>
+
+        <input type="file" id="logFileInput" accept=".txt">
+        <button onclick="loadFile()">Carregar Log</button>
+
+        <div class="filter-section">
+            <h2>Filtrar Conteúdo</h2>
+            <label for="filterInput">Termo de Busca:</label>
+            <input type="text" id="filterInput" placeholder="Ex: GET, 10.42.0.100, port 80">
+            <button onclick="applyFilter()">Aplicar Filtro</button>
+            <button onclick="clearFilter()">Limpar Filtro</button>
+        </div>
+
+        <h2>Conteúdo do Log:</h2>
+        <textarea id="logContent" readonly></textarea>
+    </div>
+
+
+    <div class="main-content">
+        <h2>Menu Principal</h2>
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <div class="tab active" data-tab="editor">Editor</div>
+                <div class="tab" data-tab="combination">Combinação de Scripts</div>
+                <div class="tab" data-tab="management">Gerenciamento</div>
+                <div class="tab" data-tab="import-export">Importar/Exportar</div>
+                <div class="tab" data-tab="json-viewer">Visualizador JSON</div>
+            </div>
+
+            <div class="tab-content active" id="editor-tab">
+                <div class="main-content-columns">
+                    <div class="panel main-content-left">
+                        <h1>Criação de Scripts Testes STB Claro</h1>
+                        <p>Crie sequências de comandos para executar no seu STB Claro</p>
+                        <div class="editor-section">
+                            <div class="form-group">
+                                <label for="script-name">Nome do Script:</label>
+                                <input type="text" id="script-name" placeholder="Ex: Navegar para VOD">
+                            </div>
+                            <div class="form-group">
+                                <label for="command-select">Selecione um Comando:</label>
+                                <select id="command-select">
+                                    <option value="">-- Selecione --</option>
+                                    <optgroup label="Navegação">
+                                        <option value="Up">Up (Cima)</option>
+                                        <option value="Down">Down (Baixo)</option>
+                                        <option value="Left">Left (Esquerda)</option>
+                                        <option value="Right">Right (Direita)</option>
+                                        <option value="Ok">OK</option>
+                                    </optgroup>
+                                    <optgroup label="Teclas Numéricas">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                    </optgroup>
+                                    <optgroup label="Funções">
+                                        <option value="Power">Power</option>
+                                        <option value="Menu">Menu</option>
+                                        <option value="APPS">APPS</option>
+                                        <option value="Guide">Guia</option>
+                                        <option value="Musica">Música</option>
+                                        <option value="VOD">VOD</option>
+                                        <option value="Mute">Mute</option>
+                                        <option value="Vol+">Volume +</option>
+                                        <option value="Vol-">Volume -</option>
+                                        <option value="Voltar">Voltar</option>
+                                        <option value="Exit">Sair</option>
+                                        <option value="Info">Info</option>
+                                    </optgroup>
+                                    <optgroup label="Cores">
+                                        <option value="Red">Vermelho</option>
+                                        <option value="Green">Verde</option>
+                                        <option value="Yellow">Amarelo</option>
+                                        <option value="Blue">Azul</option>
+                                    </optgroup>
+                                    <optgroup label="Controle de Mídia">
+                                        <option value="Play">Play</option>
+                                        <option value="Pause">Pause</option>
+                                        <option value="Stop">Stop</option>
+                                        <option value="Rew">Rewind</option>
+                                        <option value="FFwd">Fast Forward</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="command-repeat">Repetir:</label>
+                                <input type="number" id="command-repeat" min="1" value="1" class="loop-count">vezes
+                                <label style="display: inline-block; margin-left: 15px;">Atraso:</label>
+                                <input type="number" id="command-delay" min="1" value="1200" class="delay-input"> ms
+                            </div>
+                            <button id="add-command" class="btn-edit">Adicionar Comando</button>
+                            <div class="command-list" id="command-list">
+                                <p style="text-align: center; color: #999;">Nenhum comando adicionado ainda</p>
+                            </div>
+                            <button id="save-script" class="btn-combine">Salvar Script</button>
+                            <button id="clear-script" class="btn-danger">Limpar Script</button>
+                        </div>
+                        <div class="command-execution-section">
+                            <p><strong>Comandos do Script:</strong></p>
+                            <div id="current-script-info">
+                                <div class="command-display" id="command-display">
+                                    <p>Nenhum comando sendo executado no momento</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel main-content-middle">
+                        <h2>Scripts Salvos</h2>
+                        <div id="sidebar-scripts-container">
+                            <p style="text-align: center; color: #999;">Nenhum script salvo ainda</p>
+                        </div>
+                        <div class="drop-zone" id="drop-zone">
+                            <p>Arraste um script salvo aqui para executá-lo</p>
+                        </div>
+                    </div>
+
+                    <div class="panel main-content-right">
+                        <div class="command-execution-section">
+                            <h3>Fluxo de Combinação</h3>
+                            <div id="current-script-info">
+                                <h4 id="selected-script-name">Nenhum script selecionado</h4>
+                                <div class="execution-controls">
+                                    <button id="execute-script" class="btn-execute" disabled>Executar</button>
+                                    <button id="loop-script" class="btn-loop" disabled>Executar em Loop</button>
+                                    <button id="stop-script" class="btn-stop" disabled>Parar</button>
+                                    <input type="number" id="loop-count" class="loop-count" min="1" value="1" placeholder="Vezes">
+                                </div>
+                                <div class="progress-bar" id="progress-bar">
+                                    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                                </div>
+                            </div>
+                            <div class="status" id="status"></div>
+                            <div class="execution-logs" id="execution-logs">
+                                <p>Nenhum log de execução disponível</p>
+                            </div>
+                            <div class="log-chart-container">
+                                <div class="log-chart-header">
+                                    <div class="log-chart-title">Estatísticas de Execução</div>
+                                    <button id="save-log-chart" class="save-log-btn">Salvar Relatório</button>
+                                </div>
+                                <div class="log-chart" id="log-chart">
+                                    <p style="text-align: center; color: #999;">Nenhum dado disponível para exibir o gráfico</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="combination-tab">
+                <div class="panel" style="flex: 1 1 100%;"> <h2>Combinação de Scripts</h2>
+                    <div class="script-checkboxes" id="script-checkboxes">
+                        <p>Nenhum script disponível para combinação</p>
+                    </div>
+                    <div class="combination-controls">
+                        <input type="text" id="combined-script-name" placeholder="Nome do novo script combinado">
+                        <input type="number" id="combined-script-delay" class="delay-input" min="1" value="1200" placeholder="Atraso (ms) entre scripts">
+                        <button id="combine-scripts" class="btn-combine">Combinar Scripts</button>
+                    </div>
+                    <h3>Sequência de Comandos:</h3>
+                    <div class="flowchart-display" id="flowchart-display">
+                        <p style="color: #666;">Selecione scripts para ver a sequência de comandos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="management-tab">
+                <div class="panel" style="flex: 1 1 100%;">
+                       <div class="tab-content" id="json-viewer-tab">
+                <div class="panel" style="flex: 1 1 100%;">
+                    <h2>LOGS STB CLARO</h2>
+                    <div class="json-viewer-panel">
+                        <div class="json-viewer-title">Cole o JSON retornado pela STB</div>
+                        <textarea id="stb-json-input" class="json-viewer-textarea" placeholder="Cole aqui o JSON retornado pela STB"></textarea>
+                    <h2>Gerenciamento de Scripts</h2>
+                    <div class="management-controls">
+                        <button id="delete-script" class="btn-danger" disabled>Excluir Script Selecionado</button>
+                    </div>
+                    <div class="log-management">
+                        <h3>Logs de Execução</h3>
+                        <div class="log-actions">
+                            <button id="save-execution-log" class="save-log-btn"><span>Salvar Log Atual</span></button>
+                            <button id="clear-execution-logs" class="btn-danger">Limpar Logs</button>
+                        </div>
+                        <div class="log-list" id="log-list">
+                            <p>Nenhum log salvo ainda</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="import-export-tab">
+                <div class="panel" style="flex: 1 1 100%;">
+                    <h2>Importar/Exportar Scripts</h2>
+                    <textarea id="json-data" class="json-textarea" placeholder="Cole aqui o JSON dos scripts ou exporte-os"></textarea>
+                    <div class="import-export-actions">
+                        <button id="export-json" class="btn-execute">Exportar para JSON</button>
+                        <button id="import-json" class="btn-edit">Importar de JSON</button>
+                        <button id="save-json-file" class="btn-execute">Salvar como Arquivo</button>
+                        <button id="load-json-file" class="btn-edit">Carregar de Arquivo</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="json-viewer-tab">
+                <div class="panel" style="flex: 1 1 100%;">
+                    <h2>LOGS STB CLARO</h2>
+                    <div class="json-viewer-panel">
+                        <div class="json-viewer-title">Cole o JSON retornado pela STB</div>
+                        <textarea id="stb-json-input" class="json-viewer-textarea" placeholder="Cole aqui o JSON retornado pela STB"></textarea>
+                        <div class="json-viewer-actions">
+                            <button id="parse-json-btn" class="btn-execute">Listar Resultados</button>
+                            <button id="clear-json-btn" class="btn-danger">Limpar</button>
+                        </div>
+                        <div id="json-results" class="json-results-display">
+                            <p>Nenhum dado JSON para exibir. Cole o JSON acima e clique em "Listar Resultados".</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Armazenamento local para os scripts e logs
+        let scripts = JSON.parse(localStorage.getItem('ir-scripts')) || [];
+        let executionLogs = JSON.parse(localStorage.getItem('execution-logs')) || [];
+        let activeScriptIndex = null;
+        let isExecuting = false;
+        let currentScriptCommands = [];
+        let executionLoop = null;
+        let executionTimeout = null;
+        let currentExecutionLogs = [];
+        
+        // Elementos DOM
+        const sidebarScriptsContainer = document.getElementById('sidebar-scripts-container');
+        const statusElement = document.getElementById('status');
+        const jsonDataTextarea = document.getElementById('json-data');
+        const selectedScriptName = document.getElementById('selected-script-name');
+        const commandDisplay = document.getElementById('command-display');
+        const executeScriptBtn = document.getElementById('execute-script');
+        const loopScriptBtn = document.getElementById('loop-script');
+        const stopScriptBtn = document.getElementById('stop-script');
+        const loopCountInput = document.getElementById('loop-count');
+        const scriptCheckboxesContainer = document.getElementById('script-checkboxes');
+        const combineScriptsBtn = document.getElementById('combine-scripts');
+        const combinedScriptNameInput = document.getElementById('combined-script-name');
+        const combinedScriptDelayInput = document.getElementById('combined-script-delay');
+        const deleteScriptBtn = document.getElementById('delete-script');
+        const flowchartDisplay = document.getElementById('flowchart-display');
+        const executionLogsContainer = document.getElementById('execution-logs');
+        const scriptNameInput = document.getElementById('script-name');
+        const commandSelect = document.getElementById('command-select');
+        const commandRepeatInput = document.getElementById('command-repeat');
+        const commandDelayInput = document.getElementById('command-delay');
+        const addCommandBtn = document.getElementById('add-command');
+        const commandListContainer = document.getElementById('command-list');
+        const saveScriptBtn = document.getElementById('save-script');
+        const clearScriptBtn = document.getElementById('clear-script');
+        const stbJsonInput = document.getElementById('stb-json-input');
+        const parseJsonBtn = document.getElementById('parse-json-btn');
+        const clearJsonBtn = document.getElementById('clear-json-btn');
+        const jsonResultsDisplay = document.getElementById('json-results');
+        const dropZone = document.getElementById('drop-zone');
+        const progressBarFill = document.getElementById('progress-bar-fill');
+        const saveExecutionLogBtn = document.getElementById('save-execution-log');
+        const clearExecutionLogsBtn = document.getElementById('clear-execution-logs');
+        const logListContainer = document.getElementById('log-list');
+        const saveLogChartBtn = document.getElementById('save-log-chart');
+        const logChartContainer = document.getElementById('log-chart');
+        
+        // Controle das abas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove a classe active de todas as abas e conteúdos
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Adiciona a classe active apenas na aba clicada
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Se for a aba de gerenciamento, carrega os logs
+                if (tabId === 'management') {
+                    loadExecutionLogs();
+                }
+                
+                // Se for a aba de editor, atualiza o gráfico
+                if (tabId === 'editor') {
+                    updateLogChart();
+                }
+            });
+        });
+        
+        // Função para mostrar status
+        function showStatus(message, type = 'info') {
+            statusElement.textContent = message;
+            statusElement.className = 'status';
+            statusElement.classList.add(type);
+            
+            // Remove a mensagem após 5 segundos
+            setTimeout(() => {
+                if (statusElement.textContent === message) {
+                    statusElement.textContent = '';
+                    statusElement.className = 'status';
+                }
+            }, 5000);
+        }
+        
+        // Função para salvar scripts no localStorage
+        function saveScriptsToStorage() {
+            localStorage.setItem('ir-scripts', JSON.stringify(scripts));
+        }
+        
+        // Função para salvar logs no localStorage
+        function saveLogsToStorage() {
+            localStorage.setItem('execution-logs', JSON.stringify(executionLogs));
+        }
+        
+        // Função para renderizar a lista de comandos no editor
+        function renderCommandList() {
+            commandListContainer.innerHTML = '';
+            
+            if (currentScriptCommands.length === 0) {
+                commandListContainer.innerHTML = '<p style="text-align: center; color: #999;">Nenhum comando adicionado ainda</p>';
+                return;
+            }
+            
+            currentScriptCommands.forEach((cmd, index) => {
+                const cmdElement = document.createElement('div');
+                cmdElement.className = 'command-item';
+                cmdElement.dataset.index = index;
+                cmdElement.draggable = true;
+                
+                cmdElement.innerHTML = `
+                    <div class="command-details">
+                        <div class="command-name">${cmd.command}</div>
+                        <div class="command-props">Repetir: ${cmd.repeat}x | Atraso: ${cmd.delay}ms</div>
+                    </div>
+                    <button class="btn-danger" data-index="${index}">Remover</button>
+                `;
+                
+                cmdElement.querySelector('button').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const cmdIndex = parseInt(e.target.getAttribute('data-index'));
+                    currentScriptCommands.splice(cmdIndex, 1);
+                    renderCommandList();
+                    showStatus('Comando removido.', 'info');
+                });
+                
+                // Adiciona eventos de drag and drop
+                cmdElement.addEventListener('dragstart', handleCommandDragStart);
+                cmdElement.addEventListener('dragover', handleCommandDragOver);
+                cmdElement.addEventListener('drop', handleCommandDrop);
+                cmdElement.addEventListener('dragend', handleCommandDragEnd);
+                
+                commandListContainer.appendChild(cmdElement);
+            });
+        }
+        
+        // Carregar scripts de arquivo JSON
+        document.getElementById('load-json-file').addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        try {
+                            const importedData = JSON.parse(event.target.result);
+                            if (!Array.isArray(importedData)) {
+                                showStatus('O arquivo JSON deve conter um array de scripts.', 'error');
+                                return;
+                            }
+                            
+                            if (confirm('Isso substituirá todos os scripts existentes. Deseja continuar?')) {
+                                scripts = importedData;
+                                saveScriptsToStorage();
+                                loadScripts();
+                                showStatus('Scripts carregados do arquivo com sucesso!', 'success');
+                            }
+                        } catch (error) {
+                            showStatus(`Erro ao carregar arquivo JSON: ${error.message}`, 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        });
+        
+        // Parse e exibição do JSON
+        parseJsonBtn.addEventListener('click', () => {
+            try {
+                const jsonData = stbJsonInput.value.trim();
+                if (!jsonData) {
+                    showStatus('Por favor, cole um JSON na área de texto.', 'warning');
+                    return;
+                }
+                
+                const parsedData = JSON.parse(jsonData);
+                displayJsonResults(parsedData);
+                showStatus('JSON analisado e exibido com sucesso!', 'success');
+            } catch (error) {
+                showStatus(`Erro ao analisar JSON: ${error.message}`, 'error');
+                jsonResultsDisplay.innerHTML = `<p style="color: var(--error-color);">Erro ao analisar JSON: ${error.message}</p>`;
+            }
+        });
+        
+        // Limpar o JSON
+        clearJsonBtn.addEventListener('click', () => {
+            stbJsonInput.value = '';
+            jsonResultsDisplay.innerHTML = '<p>Nenhum dado JSON para exibir. Cole o JSON acima e clique em "Listar Resultados".</p>';
+            showStatus('Área de JSON limpa.', 'info');
+        });
+        
+        // Função para exibir os resultados do JSON em colunas
+        function displayJsonResults(data) {
+            if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                jsonResultsDisplay.innerHTML = '<p>O JSON deve ser um objeto com propriedades (não um array).</p>';
+                return;
+            }
+            
+            if (Object.keys(data).length === 0) {
+                jsonResultsDisplay.innerHTML = '<p>O objeto JSON está vazio.</p>';
+                return;
+            }
+            
+            let html = '';
+            for (const [key, value] of Object.entries(data)) {
+                html += `
+                    <div class="json-result-item">
+                        <span class="json-result-key">${key}:</span>
+                        <span class="json-result-value">${formatJsonValue(value)}</span>
+                    </div>
+                `;
+            }
+            
+            jsonResultsDisplay.innerHTML = html;
+        }
+        
+        // Função auxiliar para formatar valores do JSON
+        function formatJsonValue(value) {
+            if (value === null) return 'null';
+            if (value === undefined) return 'undefined';
+            if (Array.isArray(value)) return `[${value.map(formatJsonValue).join(', ')}]`;
+            if (typeof value === 'object') return JSON.stringify(value);
+            return value;
+        }
+        
+        // Função para executar um comando
+        async function sendCommand(command) {
+            try {
+                addExecutionLog(`Enviando comando: ${command}`);
+                
+                // Simulação de envio do comando (substitua pelo seu código real)
+                const response = await fetch('/send-command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ command }),
+                });
+                
+                const data = await response.json();
+                addExecutionLog(`Resposta do comando: ${JSON.stringify(data)}`, true);
+                return data;
+            } catch (error) {
+                addExecutionLog(`Erro ao enviar comando: ${error.message}`);
+                throw error;
+            }
+        }
+        
+        // Função para executar um script
+        async function executeScript(index) {
+            if (isExecuting) return;
+            
+            isExecuting = true;
+            stopScriptBtn.disabled = false;
+            const script = scripts[index];
+            clearExecutionLogs();
+            addExecutionLog(`Iniciando execução do script: ${script.name}`);
+            
+            executeScriptBtn.disabled = true;
+            loopScriptBtn.disabled = true;
+            deleteScriptBtn.disabled = true;
+            
+            try {
+                const totalCommands = script.commands.reduce((sum, cmd) => sum + cmd.repeat, 0);
+                let commandsExecuted = 0;
+                
+                for (let i = 0; i < script.commands.length; i++) {
+                    const cmd = script.commands[i];
+                    
+                    for (let j = 0; j < cmd.repeat; j++) {
+                        if (!isExecuting) break;
+                        
+                        updateCommandDisplay(`Executando: ${cmd.command} (${j+1}/${cmd.repeat})`);
+                        commandsExecuted++;
+                        updateProgressBar((commandsExecuted / totalCommands) * 100);
+                        
+                        await sendCommand(cmd.command);
+                        
+                        if (j < cmd.repeat - 1 && cmd.delay && cmd.delay > 0) {
+                            await new Promise(resolve => {
+                                executionTimeout = setTimeout(resolve, cmd.delay);
+                            });
+                        }
+                    }
+                    
+                    if (!isExecuting) break;
+                    
+                    // Atraso entre comandos
+                    if (cmd.delay && cmd.delay > 0 && i < script.commands.length - 1) {
+                        await new Promise(resolve => {
+                            executionTimeout = setTimeout(resolve, cmd.delay);
+                        });
+                    }
+                }
+                
+                if (isExecuting) {
+                    addExecutionLog(`Script "${script.name}" concluído com sucesso!`, true);
+                    showStatus(`Script "${script.name}" concluído!`, 'success');
+                } else {
+                    addExecutionLog(`Execução do script "${script.name}" interrompida.`, false);
+                }
+            } catch (error) {
+                addExecutionLog(`Erro durante a execução: ${error.message}`);
+                showStatus(`Erro durante a execução: ${error.message}`, 'error');
+            } finally {
+                isExecuting = false;
+                stopScriptBtn.disabled = true;
+                executeScriptBtn.disabled = false;
+                loopScriptBtn.disabled = false;
+                deleteScriptBtn.disabled = false;
+                updateProgressBar(0);
+                
+                if (activeScriptIndex !== null) {
+                    updateCommandDisplay(scripts[activeScriptIndex]);
+                } else {
+                    updateCommandDisplay(null);
+                }
+                
+                // Atualiza o gráfico após a execução
+                updateLogChart();
+            }
+        }
+        
+        // Função para parar a execução do script
+        function stopExecution() {
+            if (isExecuting) {
+                isExecuting = false;
+                if (executionLoop) {
+                    clearInterval(executionLoop);
+                    executionLoop = null;
+                }
+                if (executionTimeout) {
+                    clearTimeout(executionTimeout);
+                    executionTimeout = null;
+                }
+                addExecutionLog('Execução interrompida pelo usuário.', false);
+                showStatus('Execução interrompida.', 'warning');
+            }
+        }
+        
+        // Atualiza a barra de progresso
+        function updateProgressBar(percent) {
+            progressBarFill.style.width = `${percent}%`;
+        }
+        
+        // Adiciona um log de execução
+        function addExecutionLog(message, isSuccess = false) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logItem = document.createElement('div');
+            logItem.className = 'execution-log-item';
+            
+            logItem.innerHTML = `
+                <span class="execution-log-timestamp">[${timestamp}]</span>
+                <span class="execution-log-command">${message}</span>
+            `;
+            
+            if (executionLogsContainer.firstChild && executionLogsContainer.firstChild.nodeName === 'P') {
+                executionLogsContainer.removeChild(executionLogsContainer.firstChild);
+            }
+            
+            executionLogsContainer.appendChild(logItem);
+            executionLogsContainer.scrollTop = executionLogsContainer.scrollHeight;
+            
+            // Adiciona ao array de logs atuais
+            currentExecutionLogs.push({
+                timestamp: new Date().toISOString(),
+                message,
+                isSuccess
+            });
+            
+            // Limita a 100 logs para evitar consumo excessivo de memória
+            if (executionLogsContainer.children.length > 100) {
+                executionLogsContainer.removeChild(executionLogsContainer.children[0]);
+            }
+        }
+        
+        // Limpa os logs de execução
+        function clearExecutionLogs() {
+            executionLogsContainer.innerHTML = '<p>Nenhum log de execução disponível</p>';
+            currentExecutionLogs = [];
+        }
+        
+        // Atualiza o gráfico de logs
+        function updateLogChart() {
+            if (currentExecutionLogs.length === 0) {
+                logChartContainer.innerHTML = '<p style="text-align: center; color: #999;">Nenhum dado disponível para exibir o gráfico</p>';
+                return;
+            }
+            
+            // Simulação de dados para o gráfico (substitua por uma biblioteca de gráficos real)
+            const successCount = currentExecutionLogs.filter(log => log.isSuccess).length;
+            const errorCount = currentExecutionLogs.filter(log => !log.isSuccess).length;
+            
+            logChartContainer.innerHTML = `
+                <div style="display: flex; height: 100%; align-items: flex-end; justify-content: center; gap: 20px;">
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div style="width: 40px; height: ${(successCount / currentExecutionLogs.length) * 100}%; background-color: var(--claro-green);"></div>
+                        <div style="margin-top: 5px; font-size: 0.8em;">Sucessos: ${successCount}</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div style="width: 40px; height: ${(errorCount / currentExecutionLogs.length) * 100}%; background-color: var(--claro-primary);"></div>
+                        <div style="margin-top: 5px; font-size: 0.8em;">Erros: ${errorCount}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Salva o relatório do gráfico
+        saveLogChartBtn.addEventListener('click', () => {
+            if (currentExecutionLogs.length === 0) {
+                showStatus('Nenhum dado disponível para gerar relatório', 'warning');
+                return;
+            }
+            
+            const reportName = prompt('Digite um nome para este relatório:', `Relatório ${new Date().toLocaleString()}`);
+            if (!reportName) return;
+            
+            // Cria um relatório simples em formato de texto
+            
+                  // Salva JSON em um arquivo
+        document.getElementById('save-json-file').addEventListener('click', () => {
+            const data = JSON.stringify(scripts, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'scripts-controle-claro.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('Arquivo JSON gerado com sucesso!', 'success');
+        });
+            
+            
+            
+            const successCount = currentExecutionLogs.filter(log => log.isSuccess).length;
+            const errorCount = currentExecutionLogs.filter(log => !log.isSuccess).length;
+            
+            const reportContent = `
+                Relatório de Execução: ${reportName}
+                Data: ${new Date().toLocaleString()}
+                ====================================
+                Total de Execuções: ${currentExecutionLogs.length}
+                Sucessos: ${successCount} (${Math.round((successCount / currentExecutionLogs.length) * 100)}%)
+                Erros: ${errorCount} (${Math.round((errorCount / currentExecutionLogs.length) * 100)}%)
+                
+                Últimos Comandos Executados:
+                ${currentExecutionLogs.slice(-5).map(log => 
+                    `[${new Date(log.timestamp).toLocaleTimeString()}] ${log.message}`
+                ).join('\n')}
+            `;
+            
+            // Adiciona ao array de logs
+            executionLogs.push({
+                name: reportName,
+                date: new Date().toISOString(),
+                content: reportContent,
+                type: 'report'
+            });
+            
+            saveLogsToStorage();
+            showStatus('Relatório salvo com sucesso!', 'success');
+        });
+        
+        // Carrega os scripts salvos ao iniciar
+        function loadScripts() {
+            sidebarScriptsContainer.innerHTML = '';
+            scriptCheckboxesContainer.innerHTML = '';
+            
+            if (scripts.length === 0) {
+                sidebarScriptsContainer.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.7);">Nenhum script salvo ainda</p>';
+                scriptCheckboxesContainer.innerHTML = '<p>Nenhum script disponível para combinação</p>';
+                updateFlowchartDisplay();
+                return;
+            }
+            
+            // Carrega scripts na sidebar
+            scripts.forEach((script, index) => {
+                const scriptElement = document.createElement('div');
+                scriptElement.className = `sidebar-script-item ${activeScriptIndex === index ? 'active' : ''}`;
+                scriptElement.setAttribute('draggable', 'true');
+                scriptElement.dataset.index = index;
+                
+                scriptElement.innerHTML = `
+                    <div class="script-name">${script.name}</div>
+                    <div class="script-actions">
+                        <button class="btn-execute" onclick="executeScriptFromSidebar(${index}, event)">Executar</button>
+                        <button class="btn-edit" onclick="editScriptFromSidebar(${index}, event)">Editar</button>
+                        <button class="btn-danger" onclick="deleteScriptFromSidebar(${index}, event)">Excluir</button>
+                    </div>
+                `;
+                
+                scriptElement.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') return;
+                    selectScript(index);
+                });
+                
+                // Eventos de drag and drop
+                scriptElement.addEventListener('dragstart', handleDragStart);
+                
+                sidebarScriptsContainer.appendChild(scriptElement);
+            });
+            
+            // Carrega checkboxes para combinação
+            scripts.forEach((script, index) => {
+                const checkboxItem = document.createElement('div');
+                checkboxItem.className = 'script-checkbox-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `script-${index}`;
+                checkbox.value = index;
+                checkbox.addEventListener('change', updateFlowchartDisplay);
+                
+                const label = document.createElement('label');
+                label.htmlFor = `script-${index}`;
+                label.textContent = script.name;
+                
+                checkboxItem.appendChild(checkbox);
+                checkboxItem.appendChild(label);
+                scriptCheckboxesContainer.appendChild(checkboxItem);
+            });
+            
+            updateFlowchartDisplay();
+        }
+        
+        // Carrega os logs de execução salvos
+        function loadExecutionLogs() {
+            logListContainer.innerHTML = '';
+            
+            if (executionLogs.length === 0) {
+                logListContainer.innerHTML = '<p>Nenhum log salvo ainda</p>';
+                return;
+            }
+            
+            // Ordena logs por data (mais recente primeiro)
+            executionLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            executionLogs.forEach((log, index) => {
+                const logItem = document.createElement('div');
+                logItem.className = 'log-item';
+                
+                logItem.innerHTML = `
+                    <div class="log-item-header">
+                        <span class="log-item-name">${log.name}</span>
+                        <span class="log-item-date">${new Date(log.date).toLocaleString()}</span>
+                    </div>
+                    <div class="log-item-content">${log.content}</div>
+                    <div class="log-actions">
+                        <button class="btn-execute" data-index="${index}">Visualizar</button>
+                        <button class="btn-danger" data-index="${index}">Excluir</button>
+                    </div>
+                `;
+                
+                // Adiciona eventos aos botões
+                logItem.querySelectorAll('button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const logIndex = parseInt(e.target.getAttribute('data-index'));
+                        if (e.target.classList.contains('btn-execute')) {
+                            viewLog(logIndex);
+                        } else if (e.target.classList.contains('btn-danger')) {
+                            deleteLog(logIndex);
+                        }
+                    });
+                });
+                
+                logListContainer.appendChild(logItem);
+            });
+        }
+        
+        // Visualiza um log detalhado
+        function viewLog(index) {
+            const log = executionLogs[index];
+            
+            // Cria um modal ou usa um alert para exibir o log completo
+            alert(`Log: ${log.name}\nData: ${new Date(log.date).toLocaleString()}\n\n${log.content}`);
+        }
+        
+        // Exclui um log
+        function deleteLog(index) {
+            if (confirm('Tem certeza que deseja excluir este log?')) {
+                executionLogs.splice(index, 1);
+                saveLogsToStorage();
+                loadExecutionLogs();
+                showStatus('Log excluído com sucesso!', 'success');
+            }
+        }
+        
+        // Salva o log atual
+        saveExecutionLogBtn.addEventListener('click', () => {
+            if (currentExecutionLogs.length === 0) {
+                showStatus('Nenhum log para salvar.', 'warning');
+                return;
+            }
+            
+            const logName = prompt('Digite um nome para este log:', `Log ${new Date().toLocaleString()}`);
+            if (!logName) return;
+            
+            const logContent = currentExecutionLogs.map(log => 
+                `[${new Date(log.timestamp).toLocaleTimeString()}] ${log.message}`
+            ).join('\n');
+            
+            executionLogs.push({
+                name: logName,
+                date: new Date().toISOString(),
+                content: logContent
+            });
+            
+            saveLogsToStorage();
+            loadExecutionLogs();
+            showStatus('Log salvo com sucesso!', 'success');
+        });
+        
+        // Limpa todos os logs
+        clearExecutionLogsBtn.addEventListener('click', () => {
+            if (executionLogs.length === 0) {
+                showStatus('Nenhum log para limpar.', 'warning');
+                return;
+            }
+            
+            if (confirm('Tem certeza que deseja limpar todos os logs de execução?')) {
+                executionLogs = [];
+                saveLogsToStorage();
+                loadExecutionLogs();
+                showStatus('Todos os logs foram removidos.', 'success');
+            }
+        });
+        
+        // Edita um script diretamente da sidebar
+        window.editScriptFromSidebar = function(index, event) {
+            event.stopPropagation();
+            editScript(index);
+        };
+        
+        // Exclui um script diretamente da sidebar
+        window.deleteScriptFromSidebar = function(index, event) {
+            event.stopPropagation();
+            if (confirm(`Tem certeza que deseja excluir o script "${scripts[index].name}"?`)) {
+                scripts.splice(index, 1);
+                saveScriptsToStorage();
+                loadScripts();
+                
+                if (activeScriptIndex === index) {
+                    activeScriptIndex = null;
+                    selectedScriptName.textContent = 'Nenhum script selecionado';
+                    commandDisplay.innerHTML = '<p>Nenhum comando sendo executado no momento</p>';
+                    deleteScriptBtn.disabled = true;
+                    executeScriptBtn.disabled = true;
+                    loopScriptBtn.disabled = true;
+                }
+                
+                showStatus(`Script excluído com sucesso!`, 'success');
+            }
+        };
+        
+        // Função para editar um script existente
+        function editScript(index) {
+            const script = scripts[index];
+            activeScriptIndex = index;
+            
+            // Preenche o formulário com os dados do script
+            scriptNameInput.value = script.name;
+            currentScriptCommands = [...script.commands];
+            
+            // Renderiza a lista de comandos
+            renderCommandList();
+            
+            // Atualiza a aba ativa para o editor
+            document.querySelector('.tab[data-tab="editor"]').click();
+            
+            showStatus(`Editando script "${script.name}"`, 'info');
+        }
+        
+        // Seleciona um script na sidebar
+        function selectScript(index) {
+            document.querySelectorAll('.sidebar-script-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            sidebarScriptsContainer.children[index].classList.add('active');
+            activeScriptIndex = index;
+            
+            // Atualiza o painel de execução
+            const script = scripts[index];
+            selectedScriptName.textContent = script.name;
+            
+            // Habilita os botões de execução
+            executeScriptBtn.disabled = false;
+            loopScriptBtn.disabled = false;
+            deleteScriptBtn.disabled = false;
+            stopScriptBtn.disabled = isExecuting ? false : true;
+            
+            // Mostra os comandos do script
+            updateCommandDisplay(script);
+        }
+        
+        // Atualiza o display de comandos com botões
+        function updateCommandDisplay(script, executionInfo = null) {
+            let html = '';
+            
+            if (executionInfo) {
+                // Modo de execução - mostra o comando atual sendo executado
+                html = `
+                    <p><strong>Executando:</strong> ${executionInfo.command}</p>
+                    <p>Repetição: ${executionInfo.currentRepeat}/${executionInfo.totalRepeats}</p>
+                    <p>Comando: ${executionInfo.currentCommand + 1}/${executionInfo.totalCommands}</p>
+                `;
+            } else if (script && script.commands && script.commands.length > 0) {
+                // Modo normal - mostra todos os comandos
+                html = '<p><strong>Comandos do Script:</strong></p>';
+                html += '<div class="command-buttons-container">';
+                script.commands.forEach(cmd => {
+                    html += `<button class="command-button">${cmd.command} (${cmd.repeat}x)</button>`;
+                });
+                html += '</div>';
+            } else {
+                html = '<p>Nenhum comando neste script.</p>';
+            }
+            
+            commandDisplay.innerHTML = html;
+            
+            // Adiciona o drop zone novamente
+            commandDisplay.innerHTML += `
+                <div class="drop-zone" id="drop-zone">
+                    <p>Arraste um script da sidebar para executá-lo</p>
+                </div>
+            `;
+            
+            // Reatribui o evento de drop
+            document.getElementById('drop-zone').addEventListener('dragover', handleDragOver);
+            document.getElementById('drop-zone').addEventListener('drop', handleDrop);
+        }
+        
+        // Executa um script diretamente da sidebar
+        window.executeScriptFromSidebar = async function(index, event) {
+            event.stopPropagation();
+            selectScript(index);
+            await executeScript(index);
+        };
+        
+        // Executa o script selecionado
+        executeScriptBtn.addEventListener('click', async () => {
+            if (activeScriptIndex !== null) {
+                await executeScript(activeScriptIndex);
+            }
+        });
+        
+        // Executa o script em loop
+        loopScriptBtn.addEventListener('click', async () => {
+            if (activeScriptIndex !== null) {
+                const loopCount = parseInt(loopCountInput.value) || 1;
+                await executeScriptLoop(activeScriptIndex, loopCount);
+            }
+        });
+        
+        // Para a execução do script
+        stopScriptBtn.addEventListener('click', stopExecution);
+        
+        // Executa um script em loop
+        async function executeScriptLoop(index, loopCount) {
+            if (isExecuting) return;
+            
+            isExecuting = true;
+            stopScriptBtn.disabled = false;
+            const script = scripts[index];
+            clearExecutionLogs();
+            addExecutionLog(`Iniciando execução em loop (${loopCount}x) do script: ${script.name}`);
+            
+            // Desabilita botões durante a execução
+            executeScriptBtn.disabled = true;
+            loopScriptBtn.disabled = true;
+            
+            try {
+                for (let loop = 0; loop < loopCount; loop++) {
+                    if (!isExecuting) break;
+                    
+                    addExecutionLog(`Iniciando loop ${loop+1}/${loopCount}`);
+                    
+                    const totalCommands = script.commands.reduce((sum, cmd) => sum + cmd.repeat, 0);
+                    let commandsExecuted = 0;
+                    
+                    for (let i = 0; i < script.commands.length; i++) {
+                        const cmd = script.commands[i];
+                        
+                        for (let j = 0; j < cmd.repeat; j++) {
+                            if (!isExecuting) break;
+                            
+                            updateCommandDisplay(script, {
+                                command: cmd.command,
+                                currentRepeat: j + 1,
+                                totalRepeats: cmd.repeat,
+                                currentCommand: i,
+                                totalCommands: script.commands.length,
+                                currentLoop: loop + 1,
+                                totalLoops: loopCount
+                            });
+                            
+                            commandsExecuted++;
+                            updateProgressBar((commandsExecuted / totalCommands) * 100);
+                            
+                            await sendCommand(cmd.command);
+                            
+                            if (j < cmd.repeat - 1 && cmd.delay && cmd.delay > 0) {
+                                await new Promise(resolve => {
+                                    executionTimeout = setTimeout(resolve, cmd.delay);
+                                });
+                            }
+                        }
+                        
+                        if (!isExecuting) break;
+                        
+                        // Atraso entre comandos
+                        if (cmd.delay && cmd.delay > 0 && i < script.commands.length - 1) {
+                            await new Promise(resolve => {
+                                executionTimeout = setTimeout(resolve, cmd.delay);
+                            });
+                        }
+                    }
+                    
+                    if (!isExecuting) break;
+                    
+                    if (loop < loopCount - 1) {
+                        await new Promise(resolve => {
+                            executionTimeout = setTimeout(resolve, 1200);
+                        });
+                    }
+                }
+                
+                if (isExecuting) {
+                    addExecutionLog(`Loop do script "${script.name}" concluído (${loopCount} execuções)!`, true);
+                    showStatus(`Loop do script "${script.name}" concluído (${loopCount} execuções)!`, 'success');
+                } else {
+                    addExecutionLog(`Execução em loop interrompida.`, false);
+                }
+            } catch (error) {
+                addExecutionLog(`Erro durante a execução em loop: ${error.message}`);
+                showStatus(`Erro durante a execução em loop: ${error.message}`, 'error');
+            } finally {
+                isExecuting = false;
+                stopScriptBtn.disabled = true;
+                executeScriptBtn.disabled = false;
+                loopScriptBtn.disabled = false;
+                updateProgressBar(0);
+                
+                if (activeScriptIndex !== null) {
+                    updateCommandDisplay(scripts[activeScriptIndex]);
+                } else {
+                    updateCommandDisplay(null);
+                }
+                
+                // Atualiza o gráfico após a execução
+                updateLogChart();
+            }
+        }
+        
+        // Atualiza o display do fluxograma de combinação
+        function updateFlowchartDisplay() {
+            flowchartDisplay.innerHTML = '';
+            const checkboxes = scriptCheckboxesContainer.querySelectorAll('input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                flowchartDisplay.innerHTML = '<p style="color: #666;">Selecione scripts para ver a sequência de comandos.</p>';
+                return;
+            }
+            
+            // Coleta todos os comandos dos scripts selecionados
+            let allCommands = [];
+            checkboxes.forEach(checkbox => {
+                const scriptIndex = parseInt(checkbox.value);
+                allCommands = allCommands.concat(scripts[scriptIndex].commands);
+            });
+            
+            // Exibe a sequência de comandos
+            if (allCommands.length > 0) {
+                let html = '<div style="width: 100%;">';
+                html += '<p><strong>Sequência de Comandos:</strong></p>';
+                html += '<div style="display: flex; flex-wrap: wrap; gap: 8px;">';
+                
+                allCommands.forEach((cmd, index) => {
+                    html += `<div class="command-button">${cmd.command} (${cmd.repeat}x)</div>`;
+                });
+                
+                html += '</div></div>';
+                flowchartDisplay.innerHTML = html;
+            } else {
+                flowchartDisplay.innerHTML = '<p>Nenhum comando nos scripts selecionados.</p>';
+            }
+        }
+        
+        // Event listener para as checkboxes para atualizar o fluxograma
+        scriptCheckboxesContainer.addEventListener('change', updateFlowchartDisplay);
+        
+        // Combina scripts selecionados
+        combineScriptsBtn.addEventListener('click', () => {
+            const selectedScriptsIndexes = [];
+            const checkboxes = scriptCheckboxesContainer.querySelectorAll('input[type="checkbox"]:checked');
+            
+            if (checkboxes.length < 2) {
+                showStatus('Selecione pelo menos 2 scripts para combinar', 'error');
+                return;
+            }
+            
+            const newScriptName = combinedScriptNameInput.value.trim();
+            if (!newScriptName) {
+                showStatus('Digite um nome para o novo script combinado', 'error');
+                return;
+            }
+            
+            checkboxes.forEach(checkbox => {
+                selectedScriptsIndexes.push(parseInt(checkbox.value));
+            });
+            
+            // Cria uma nova lista de comandos baseada na ordem de seleção no HTML
+            const combinedCommands = [];
+            selectedScriptsIndexes.forEach(index => {
+                combinedCommands.push(...scripts[index].commands);
+            });
+            
+            const newScript = {
+                name: newScriptName,
+                commands: combinedCommands
+            };
+            
+            scripts.push(newScript);
+            saveScriptsToStorage();
+            loadScripts();
+            showStatus(`Script combinado "${newScriptName}" criado com sucesso!`, 'success');
+            combinedScriptNameInput.value = '';
+            
+            // Desmarca todas as checkboxes após a combinação
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            updateFlowchartDisplay();
+        });
+        
+        // Exclui o script selecionado
+        deleteScriptBtn.addEventListener('click', () => {
+            if (activeScriptIndex === null) return;
+            
+            const scriptName = scripts[activeScriptIndex].name;
+            if (confirm(`Tem certeza que deseja excluir o script "${scriptName}"?`)) {
+                scripts.splice(activeScriptIndex, 1);
+                saveScriptsToStorage();
+                loadScripts();
+                activeScriptIndex = null;
+                selectedScriptName.textContent = 'Nenhum script selecionado';
+                commandDisplay.innerHTML = '<p>Nenhum comando sendo executado no momento</p>';
+                deleteScriptBtn.disabled = true;
+                executeScriptBtn.disabled = true;
+                loopScriptBtn.disabled = true;
+                stopScriptBtn.disabled = true;
+                showStatus(`Script "${scriptName}" excluído com sucesso!`, 'success');
+            }
+        });
+        
+        // Exporta scripts para JSON
+        document.getElementById('export-json').addEventListener('click', () => {
+            jsonDataTextarea.value = JSON.stringify(scripts, null, 2);
+            showStatus('Scripts exportados para JSON!', 'success');
+        });
+        
+        // Importa scripts de JSON
+        document.getElementById('import-json').addEventListener('click', () => {
+            try {
+                const importedScripts = JSON.parse(jsonDataTextarea.value);
+                
+                if (!Array.isArray(importedScripts)) {
+                    throw new Error('O JSON deve conter um array de scripts');
+                }
+                
+                // Validação básica dos scripts importados
+                const isValid = importedScripts.every(script =>
+                    typeof script.name === 'string' &&
+                    Array.isArray(script.commands) &&
+                    script.commands.every(cmd =>
+                        typeof cmd.command === 'string' &&
+                        typeof cmd.repeat === 'number' && cmd.repeat >= 1 &&
+                        (typeof cmd.delay === 'number' || typeof cmd.delay === 'undefined')
+                    )
+                );
+                
+                if (!isValid) {
+                    throw new Error('Formato de script JSON inválido.');
+                }
+                
+                if (confirm('Isso substituirá todos os scripts existentes. Deseja continuar?')) {
+                    scripts = importedScripts;
+                    saveScriptsToStorage();
+                    loadScripts();
+                    showStatus('Scripts importados com sucesso!', 'success');
+                    jsonDataTextarea.value = '';
+                }
+            } catch (error) {
+                showStatus(`Erro ao importar JSON: ${error.message}`, 'error');
+            }
+        });
+        
+        // Salva JSON em um arquivo
+        document.getElementById('save-json-file').addEventListener('click', () => {
+            const data = JSON.stringify(scripts, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'scripts-controle-claro.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('Arquivo JSON gerado com sucesso!', 'success');
+        });
+        
+        // Adiciona um comando ao script atual
+        addCommandBtn.addEventListener('click', () => {
+            const command = commandSelect.value;
+            if (!command) {
+                showStatus('Selecione um comando para adicionar', 'warning');
+                return;
+            }
+            
+            const repeat = parseInt(commandRepeatInput.value) || 1;
+            const delay = parseInt(commandDelayInput.value) || 0;
+            
+            currentScriptCommands.push({
+                command,
+                repeat,
+                delay
+            });
+            
+            renderCommandList();
+            showStatus('Comando adicionado com sucesso!', 'success');
+            
+            // Limpa a seleção para o próximo comando
+            commandSelect.value = '';
+            commandRepeatInput.value = '1';
+            commandDelayInput.value = '1200';
+        });
+        
+        // Salva o script novo/editado
+        saveScriptBtn.addEventListener('click', () => {
+            const scriptName = scriptNameInput.value.trim();
+            if (!scriptName) {
+                showStatus('Por favor, insira um nome para o script.', 'warning');
+                return;
+            }
+            
+            if (currentScriptCommands.length === 0) {
+                showStatus('O script deve ter pelo menos um comando.', 'warning');
+                return;
+            }
+            
+            if (activeScriptIndex !== null && scripts[activeScriptIndex]) {
+                // Editando script existente
+                scripts[activeScriptIndex].name = scriptName;
+                scripts[activeScriptIndex].commands = currentScriptCommands;
+                showStatus(`Script "${scriptName}" atualizado com sucesso!`, 'success');
+            } else {
+                // Criando novo script
+                scripts.push({ name: scriptName, commands: currentScriptCommands });
+                showStatus(`Script "${scriptName}" salvo com sucesso!`, 'success');
+            }
+            
+            // Limpa o formulário e reseta o estado
+            clearEditor();
+            saveScriptsToStorage();
+            loadScripts();
+        });
+        
+        // Limpa o formulário do editor
+        clearScriptBtn.addEventListener('click', clearEditor);
+        
+        function clearEditor() {
+            scriptNameInput.value = '';
+            commandSelect.value = '';
+            commandRepeatInput.value = '1';
+            commandDelayInput.value = '1200';
+            currentScriptCommands = [];
+            renderCommandList();
+            activeScriptIndex = null;
+            showStatus('Editor limpo.', 'info');
+        }
+        
+        // Drag and Drop functions para scripts
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.index);
+            e.dataTransfer.effectAllowed = 'copy';
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            e.target.classList.add('active');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            e.target.classList.remove('active');
+            
+            const scriptIndex = e.dataTransfer.getData('text/plain');
+            if (scriptIndex) {
+                selectScript(parseInt(scriptIndex));
+                executeScript(parseInt(scriptIndex));
+            }
+        }
+        
+         let originalLogContent = ''; // Armazena o conteúdo original do log para filtros
+
+        function loadFile() {
+            const fileInput = document.getElementById('logFileInput');
+            const logContentArea = document.getElementById('logContent');
+
+            if (fileInput.files.length === 0) {
+                alert('Por favor, selecione um arquivo de log.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                originalLogContent = e.target.result;
+                logContentArea.value = originalLogContent; // Exibe o conteúdo original
+                document.getElementById('filterInput').value = ''; // Limpa o filtro ao carregar novo arquivo
+            };
+
+            reader.onerror = function(e) {
+                console.error("Erro ao ler o arquivo:", e);
+                logContentArea.value = "Erro ao carregar o arquivo.";
+            };
+
+            reader.readAsText(file);
+        }
+
+        function applyFilter() {
+            const filterTerm = document.getElementById('filterInput').value.toLowerCase();
+            const logContentArea = document.getElementById('logContent');
+
+            if (!originalLogContent) {
+                alert('Por favor, carregue um arquivo de log primeiro.');
+                return;
+            }
+
+            if (!filterTerm) {
+                logContentArea.value = originalLogContent; // Se o filtro estiver vazio, mostra o conteúdo original
+                return;
+            }
+
+            const lines = originalLogContent.split('\n');
+            const filteredLines = lines.filter(line => line.toLowerCase().includes(filterTerm));
+            logContentArea.value = filteredLines.join('\n');
+        }
+
+        function clearFilter() {
+            document.getElementById('filterInput').value = '';
+            document.getElementById('logContent').value = originalLogContent;
+        }
+        
+        
+        // Drag and Drop functions para comandos (reordenamento)
+        let draggedCommandIndex = null;
+        
+        function handleCommandDragStart(e) {
+            draggedCommandIndex = parseInt(e.target.closest('.command-item').dataset.index);
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', draggedCommandIndex);
+        }
+        
+        function handleCommandDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const commandItem = e.target.closest('.command-item');
+            if (commandItem && commandItem.dataset.index !== draggedCommandIndex) {
+                const commandIndex = parseInt(commandItem.dataset.index);
+                const rect = commandItem.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                
+                if (e.clientY < midpoint) {
+                    commandItem.style.borderTop = '2px solid var(--claro-primary)';
+                    commandItem.style.borderBottom = 'none';
+                } else {
+                    commandItem.style.borderBottom = '2px solid var(--claro-primary)';
+                    commandItem.style.borderTop = 'none';
+                }
+            }
+        }
+        
+        function handleCommandDrop(e) {
+            e.preventDefault();
+            
+            const commandItem = e.target.closest('.command-item');
+            if (commandItem && draggedCommandIndex !== null) {
+                const dropIndex = parseInt(commandItem.dataset.index);
+                const rect = commandItem.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                
+                // Remove os estilos de destaque
+                document.querySelectorAll('.command-item').forEach(item => {
+                    item.style.borderTop = 'none';
+                    item.style.borderBottom = 'none';
+                });
+                
+                // Move o comando para a nova posição
+                const commandToMove = currentScriptCommands[draggedCommandIndex];
+                currentScriptCommands.splice(draggedCommandIndex, 1);
+                
+                const newIndex = e.clientY < midpoint ? dropIndex : dropIndex + 1;
+                currentScriptCommands.splice(newIndex, 0, commandToMove);
+                
+                renderCommandList();
+                showStatus('Ordem dos comandos atualizada.', 'info');
+            }
+        }
+        
+        function handleCommandDragEnd(e) {
+            // Remove os estilos de destaque
+            document.querySelectorAll('.command-item').forEach(item => {
+                item.style.borderTop = 'none';
+                item.style.borderBottom = 'none';
+                item.classList.remove('dragging');
+            });
+            
+            draggedCommandIndex = null;
+        }
+        
+        // Set up drop zone
+        dropZone.addEventListener('dragover', handleDragOver);
+        dropZone.addEventListener('drop', handleDrop);
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('active');
+        });
+        
+        // Initial load
+        loadScripts();
+    </script>
+</body>
+</html>
